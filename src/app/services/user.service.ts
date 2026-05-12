@@ -17,7 +17,7 @@ import { ApiResponse } from '../responses/api.response';
 export class UserService {
   private apiRegister = `${environment.apiBaseUrl}/auth/register`;
   private apiLogin = `${environment.apiBaseUrl}/auth/login`;
-  private apiUserDetail = `${environment.apiBaseUrl}/auth/details`;
+  private apiUserDetail = `${environment.apiBaseUrl}/users/details`;
 
   private http = inject(HttpClient);
   private httpUtilService = inject(HttpUtilService);

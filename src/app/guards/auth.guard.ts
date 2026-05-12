@@ -21,17 +21,14 @@ export class AuthGuard {
     next: ActivatedRouteSnapshot,
     state: RouterStateSnapshot,
   ): boolean {
+    const token = this.tokenService.getToken();
     const isTokenExpired = this.tokenService.isTokenExpired();
-    const isUserIdValid =
-      this.tokenService.getUserId() > 0 &&
-      this.tokenService.getUserId() !== null &&
-      this.tokenService.getUserId() !== undefined;
-    debugger;
-    if (!isTokenExpired && isUserIdValid) {
+
+    // Chỉ cần có token và chưa hết hạn là cho qua
+    if (token && !isTokenExpired) {
       return true;
     } else {
-      // Nếu không authenticated, bạn có thể redirect hoặc trả về một UrlTree khác.
-      // Ví dụ trả về trang login:
+      // Chỉ điều hướng về login nếu đang không ở sẵn trang login
       if (state.url !== '/login') {
         this.router.navigate(['/login']);
       }

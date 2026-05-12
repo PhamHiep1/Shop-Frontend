@@ -17,12 +17,8 @@ import { ApiResponse } from '../../../../responses/api.response';
   templateUrl: './update.product.admin.component.html',
   styleUrls: ['./update.product.admin.component.scss'],
   standalone: true,
-  imports: [   
-    CommonModule,
-    FormsModule,
-  ]
+  imports: [CommonModule, FormsModule],
 })
-
 export class UpdateProductAdminComponent implements OnInit {
   productId: number;
   product: Product;
@@ -35,16 +31,16 @@ export class UpdateProductAdminComponent implements OnInit {
     private productService: ProductService,
     private route: ActivatedRoute,
     private router: Router,
-    private categoryService: CategoryService,    
+    private categoryService: CategoryService,
     private location: Location,
   ) {
     this.productId = 0;
     this.product = {} as Product;
-    this.updatedProduct = {} as Product;  
+    this.updatedProduct = {} as Product;
   }
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe(params => {
+    this.route.paramMap.subscribe((params) => {
       this.productId = Number(params.get('id'));
       this.getProductDetails();
     });
@@ -61,26 +57,21 @@ export class UpdateProductAdminComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Error fetching categories:', error);
-      }
+      },
     });
   }
   getProductDetails(): void {
     this.productService.getDetailProduct(this.productId).subscribe({
       next: (apiResponse: ApiResponse) => {
-
         this.product = apiResponse.data;
-        this.updatedProduct = { ...apiResponse.data };                
-        this.updatedProduct.product_images.forEach((product_image:ProductImage) => {
+        this.updatedProduct = { ...apiResponse.data };
+        this.updatedProduct.images.forEach((product_image: ProductImage) => {
           product_image.image_url = `${environment.apiBaseUrl}/products/images/${product_image.image_url}`;
         });
       },
-      complete: () => {
-        
-      },
-      error: (error: any) => {
-        
-      }
-    });     
+      complete: () => {},
+      error: (error: any) => {},
+    });
   }
   updateProduct() {
     // Implement your update logic here
@@ -88,50 +79,51 @@ export class UpdateProductAdminComponent implements OnInit {
       name: this.updatedProduct.name,
       price: this.updatedProduct.price,
       description: this.updatedProduct.description,
-      category_id: this.updatedProduct.category_id
+      category_id: this.updatedProduct.category_id,
     };
-    this.productService.updateProduct(this.product.id, updateProductDTO).subscribe({
-      next: (apiResponse: ApiResponse) => {  
-        debugger        
-      },
-      complete: () => {
-        debugger;
-        this.router.navigate(['/admin/products']);        
-      },
-      error: (error: any) => {
-        debugger;
-        console.error('Error fetching products:', error);
-      }
-    });  
+    this.productService
+      .updateProduct(this.product.id, updateProductDTO)
+      .subscribe({
+        next: (apiResponse: ApiResponse) => {
+          debugger;
+        },
+        complete: () => {
+          debugger;
+          this.router.navigate(['/admin/products']);
+        },
+        error: (error: any) => {
+          debugger;
+          console.error('Error fetching products:', error);
+        },
+      });
   }
   showImage(index: number): void {
-    debugger
-    if (this.product && this.product.product_images && 
-        this.product.product_images.length > 0) {
-      // Đảm bảo index nằm trong khoảng hợp lệ        
+    debugger;
+    if (this.product && this.product.images && this.product.images.length > 0) {
+      // Đảm bảo index nằm trong khoảng hợp lệ
       if (index < 0) {
         index = 0;
-      } else if (index >= this.product.product_images.length) {
-        index = this.product.product_images.length - 1;
-      }        
+      } else if (index >= this.product.images.length) {
+        index = this.product.images.length - 1;
+      }
       // Gán index hiện tại và cập nhật ảnh hiển thị
       this.currentImageIndex = index;
     }
   }
   thumbnailClick(index: number) {
-    debugger
+    debugger;
     // Gọi khi một thumbnail được bấm
     this.currentImageIndex = index; // Cập nhật currentImageIndex
-  }  
+  }
   nextImage(): void {
-    debugger
+    debugger;
     this.showImage(this.currentImageIndex + 1);
   }
 
   previousImage(): void {
-    debugger
+    debugger;
     this.showImage(this.currentImageIndex - 1);
-  }  
+  }
   onFileChange(event: any) {
     // Retrieve selected files from input element
     const files = event.target.files;
@@ -144,33 +136,33 @@ export class UpdateProductAdminComponent implements OnInit {
     this.images = files;
     this.productService.uploadImages(this.productId, this.images).subscribe({
       next: (apiResponse: ApiResponse) => {
-        debugger
-        // Handle the uploaded images response if needed              
+        debugger;
+        // Handle the uploaded images response if needed
         console.log('Images uploaded successfully:', apiResponse);
-        this.images = [];       
+        this.images = [];
         // Reload product details to reflect the new images
-        this.getProductDetails(); 
+        this.getProductDetails();
       },
       error: (error) => {
         // Handle the error while uploading images
-        alert(error.error)
+        alert(error.error);
         console.error('Error uploading images:', error);
-      }
-    })
+      },
+    });
   }
   deleteImage(productImage: ProductImage) {
     if (confirm('Are you sure you want to remove this image?')) {
-      // Call the removeImage() method to remove the image   
+      // Call the removeImage() method to remove the image
       this.productService.deleteProductImage(productImage.id).subscribe({
-        next:(productImage: ProductImage) => {
-          location.reload();          
-        },        
+        next: (productImage: ProductImage) => {
+          location.reload();
+        },
         error: (error) => {
           // Handle the error while uploading images
-          alert(error.error)
+          alert(error.error);
           console.error('Error deleting images:', error);
-        }
+        },
       });
-    }   
+    }
   }
 }

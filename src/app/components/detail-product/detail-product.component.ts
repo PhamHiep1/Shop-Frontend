@@ -43,45 +43,36 @@ export class DetailProductComponent implements OnInit {
     }
     if (!isNaN(this.productId)) {
       this.productService.getDetailProduct(this.productId).subscribe({
-        next: (apiResponse: ApiResponse) => {
-          // Lấy danh sách ảnh sản phẩm và thay đổi URL
-          const response = apiResponse.data;
-          const images = response.productImages || response.product_images;
-          debugger;
-          if (images && images.length > 0) {
-            images.forEach((product_image: ProductImage) => {
-              product_image.image_url = `${environment.apiBaseUrl}/products/images/${product_image.image_url}`;
+        next: (apiResponse: any) => {
+          // 1. Vì response trả về trực tiếp (không có .data), ta dùng luôn apiResponse
+          const response = apiResponse;
+
+          if (response && response.images && Array.isArray(response.images)) {
+            response.images.forEach((product_image: any) => {
+              // 2. QUAN TRỌNG: Backend trả về 'imageURL', không phải 'image_url'
+              // 3. Kiểm tra lại đường dẫn: Nếu backend mapping folder uploads vào /products/images/
+              product_image.image_url = `${environment.apiBaseUrl}/products/images/${product_image.imageURL}`;
             });
           }
-          debugger;
+
           this.product = response;
-          // Bắt đầu với ảnh đầu tiên
-          this.showImage(0);
-        },
-        complete: () => {
-          debugger;
-        },
-        error: (error: any) => {
-          debugger;
-          console.error('Error fetching detail:', error);
+
+          // Thiết lập ảnh hiển thị mặc định
+          if (this.product && this.product.images.length > 0) {
+            this.showImage(0);
+          }
         },
       });
-    } else {
-      console.error('Invalid productId:', idParam);
     }
   }
   showImage(index: number): void {
     debugger;
-    if (
-      this.product &&
-      this.product.product_images &&
-      this.product.product_images.length > 0
-    ) {
+    if (this.product && this.product.images && this.product.images.length > 0) {
       // Đảm bảo index nằm trong khoảng hợp lệ
       if (index < 0) {
         index = 0;
-      } else if (index >= this.product.product_images.length) {
-        index = this.product.product_images.length - 1;
+      } else if (index >= this.product.images.length) {
+        index = this.product.images.length - 1;
       }
       // Gán index hiện tại và cập nhật ảnh hiển thị
       this.currentImageIndex = index;
@@ -106,6 +97,7 @@ export class DetailProductComponent implements OnInit {
     this.isPressedAddToCart = true;
     if (this.product) {
       this.cartService.addToCart(this.product.id, this.quantity);
+      alert('Đã thêm sản phẩm vào giỏ hàng!');
     } else {
       // Xử lý khi product là null
       console.error('Không thể thêm sản phẩm vào giỏ hàng vì product là null.');

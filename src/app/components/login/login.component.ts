@@ -41,8 +41,8 @@ export class LoginComponent implements OnInit {
   password: string = '11223344';
 
   */
-  phoneNumber: string = '33445566';
-  password: string = '123456789';
+  phoneNumber: string = '099999999';
+  password: string = '12345';
   showPassword: boolean = false;
 
   roles: Role[] = []; // Mảng roles
@@ -94,7 +94,7 @@ export class LoginComponent implements OnInit {
     debugger;
 
     const loginDTO: LoginDTO = {
-      phone_number: this.phoneNumber,
+      phone_or_email: this.phoneNumber,
       password: this.password,
       role_id: this.selectedRole?.id ?? 1,
     };

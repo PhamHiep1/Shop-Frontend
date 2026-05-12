@@ -1,4 +1,4 @@
-import { ProductImage } from "./product.image";
+import { ProductImage } from './product.image';
 export interface Product {
   id: number;
   name: string;
@@ -7,8 +7,6 @@ export interface Product {
   description: string;
   category_id: number;
   url: string;
-  product_images: ProductImage[];
+  quantity: number;
+  images: ProductImage[];
 }
-
-  
-  
