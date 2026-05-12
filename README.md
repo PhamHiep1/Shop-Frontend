@@ -2,7 +2,8 @@
 A robust RESTful API backend system for an E-commerce platform, designed with a clean, feature-driven architecture to ensure scalability and maintainability.
 # Screenshorts
 ## Register page
-<img width="1884" height="958" alt="image" src="https://github.com/user-attachments/assets/6794af64-176c-4926-841b-a0347dd1c349" />
+<p><img width="1884" height="958" alt="image" src="https://github.com/user-attachments/assets/6794af64-176c-4926-841b-a0347dd1c349" />
+</p>
 ## Login page
 <img width="1886" height="960" alt="image" src="https://github.com/user-attachments/assets/5dae5239-a5f7-4a07-8a4d-a32256222bfd" />
 ## Home page
