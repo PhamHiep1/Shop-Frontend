@@ -13,121 +13,121 @@ import { OrderResponse } from '../../../responses/order/order.response';
 import { OrderService } from '../../../services/order.service';
 import { ApiResponse } from '../../../responses/api.response';
 
-
 @Component({
   selector: 'app-detail-order-admin',
   templateUrl: './detail.order.admin.component.html',
   styleUrls: ['./detail.order.admin.component.scss'],
   standalone: true,
-  imports: [   
-    CommonModule,
-    FormsModule,
-  ]
+  imports: [CommonModule, FormsModule],
 })
-
-export class DetailOrderAdminComponent implements OnInit{    
-  orderId:number = 0;
+export class DetailOrderAdminComponent implements OnInit {
+  orderId: number = 0;
   orderResponse: OrderResponse = {
     id: 0, // Hoặc bất kỳ giá trị số nào bạn muốn
     user_id: 0,
-    fullname: '',
+    full_name: '',
     phone_number: '',
     email: '',
     address: '',
     note: '',
     order_date: new Date(),
     status: '',
-    total_money: 0, 
+    total_money: 0,
     shipping_method: '',
     shipping_address: '',
     shipping_date: new Date(),
     payment_method: '',
     order_details: [],
-    
-  };  
+  };
   private orderService = inject(OrderService);
-  constructor(    
+  constructor(
     private route: ActivatedRoute,
-    private router: Router
-    ) {}
+    private router: Router,
+  ) {}
 
   ngOnInit(): void {
     this.getOrderDetails();
   }
-  
   getOrderDetails(): void {
-    debugger
     this.orderId = Number(this.route.snapshot.paramMap.get('id'));
     this.orderService.getOrderById(this.orderId).subscribe({
-      next: (apiResponse: ApiResponse) => {        
-        debugger;       
-        const response = apiResponse.data    
+      next: (apiResponse: any) => {
+        // Lưu ý: Kiểm tra xem apiResponse là Object Order hay là { data: Order }
+        const response = apiResponse.data ? apiResponse.data : apiResponse;
+
+        // 2. Gán thông tin đơn hàng (đã chạy đúng)
         this.orderResponse.id = response.id;
-        this.orderResponse.user_id = response.user_id;
-        this.orderResponse.fullname = response.fullname;
-        this.orderResponse.email = response.email;
-        this.orderResponse.phone_number = response.phone_number;
-        this.orderResponse.address = response.address; 
-        this.orderResponse.note = response.note;
-        this.orderResponse.total_money = response.total_money;
-        if (response.order_date) {
-          this.orderResponse.order_date = new Date(
-            response.order_date[0], 
-            response.order_date[1] - 1, 
-            response.order_date[2]
-          );        
-        }        
-        this.orderResponse.order_details = response.order_details
-          .map((order_detail:any) => {
-          order_detail.product.thumbnail = `${environment.apiBaseUrl}/products/images/${order_detail.product.thumbnail}`;
-          order_detail.number_of_products = order_detail.numberOfProducts
-          //order_detail.total_money = order_detail.totalMoney
-          return order_detail;
-        });        
-        this.orderResponse.payment_method = response.payment_method;
-        if (response.shipping_date) {
-          this.orderResponse.shipping_date = new Date(
-            response.shipping_date[0],
-            response.shipping_date[1] - 1,
-            response.shipping_date[2]
+        this.orderResponse.full_name =
+          response.fullName || response.user?.fullName || 'N/A';
+        this.orderResponse.email = response.email || response.user?.email || '';
+        this.orderResponse.phone_number =
+          response.phoneNumber || response.user?.phoneNumber || '';
+        this.orderResponse.address =
+          response.address || response.user?.address || '';
+        this.orderResponse.status = response.status;
+        this.orderResponse.order_date = new Date(response.orderDate);
+        this.orderResponse.total_money = response.totalMoney;
+
+        // 3. Map chi tiết đơn hàng - PHẦN QUAN TRỌNG NHẤT
+        if (response.orderDetails && Array.isArray(response.orderDetails)) {
+          this.orderResponse.order_details = response.orderDetails.map(
+            (detail: any) => {
+              // LỖI Ở ĐÂY: Bạn phải debug chính xác xem 'productResponse'
+              // nằm ở đâu trong biến 'detail' này.
+              const pInfo = detail.productResponse;
+
+              console.log(
+                'Thông tin sản phẩm tìm thấy trong item ' + detail.id + ':',
+                pInfo,
+              );
+
+              return {
+                ...detail,
+                product: {
+                  // Thay vì dùng gán mặc định ngay, hãy ép kiểu để chắc chắn
+                  name: pInfo ? pInfo.name : detail.product_id || detail.id,
+                  thumbnail: pInfo?.thumbnail
+                    ? `${environment.apiBaseUrl}/products/images/${pInfo.thumbnail}`
+                    : '',
+                },
+                number_of_products:
+                  detail.numberOfProducts || detail.number_of_product,
+                price: detail.price,
+                total_money: detail.totalMoney || detail.total_money,
+              };
+            },
           );
-        }         
-        this.orderResponse.shipping_method = response.shipping_method;        
-        this.orderResponse.status = response.status;     
-        debugger   
-      },      
-      complete: () => {
-        debugger;        
+        }
+        console.log('DỮ LIỆU CUỐI CÙNG:', this.orderResponse);
       },
       error: (error: any) => {
-        debugger;
-        console.error('Error fetching detail:', error);
+        console.error('Lỗi API:', error);
       },
     });
-  }    
-  
-  saveOrder(): void {    
-    debugger        
+  }
+
+  saveOrder(): void {
+    debugger;
     this.orderService
       .updateOrder(this.orderId, new OrderDTO(this.orderResponse))
       .subscribe({
-      next: (response: ApiResponse) => {
-        debugger
-        // Handle the successful update
-        //console.log('Order updated successfully:', response);
-        // Navigate back to the previous page
-        //this.router.navigate(['/admin/orders']);       
-        this.router.navigate(['../'], { relativeTo: this.route });
-      },
-      complete: () => {
-        debugger;        
-      },
-      error: (error: any) => {
-        // Handle the error
-        debugger
-        console.error('Error updating order:', error);
-        this.router.navigate(['../'], { relativeTo: this.route });
-      }
-    });   
+        next: (response: ApiResponse) => {
+          debugger;
+          // Handle the successful update
+          //console.log('Order updated successfully:', response);
+          // Navigate back to the previous page
+          //this.router.navigate(['/admin/orders']);
+          this.router.navigate(['../'], { relativeTo: this.route });
+        },
+        complete: () => {
+          debugger;
+        },
+        error: (error: any) => {
+          // Handle the error
+          debugger;
+          console.error('Error updating order:', error);
+          this.router.navigate(['../'], { relativeTo: this.route });
+        },
+      });
   }
 }
