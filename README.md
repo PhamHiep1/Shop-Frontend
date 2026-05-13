@@ -17,4 +17,10 @@ A robust RESTful API backend system for an E-commerce platform, designed with a 
 ## Order page
 <img width="1895" height="956" alt="image" src="https://github.com/user-attachments/assets/d528c103-ccd8-41cf-9d58-8363d21a3f12" />
 
+## Admin page
+### order admin page
+<img width="1919" height="960" alt="image" src="https://github.com/user-attachments/assets/29db4d2c-c367-41f6-810a-8ae43687fc34" />
+
+
+
 
